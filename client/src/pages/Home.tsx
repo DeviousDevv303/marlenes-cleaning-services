@@ -1,31 +1,30 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { getLoginUrl } from "@/const";
-import { Streamdown } from 'streamdown';
+import { useRef } from "react";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import ServicesSection from "@/components/ServicesSection";
+import SchedulingSection from "@/components/SchedulingSection";
+import PaymentSection from "@/components/PaymentSection";
+import ReviewsSection from "@/components/ReviewsSection";
+import Footer from "@/components/Footer";
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Workflow, Frontend Best Practices, Design Guide and Common Pitfalls
- */
 export default function Home() {
-  // The userAuth hooks provides authentication state
-  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
+  const schedulingRef = useRef<HTMLDivElement>(null);
 
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  const scrollToScheduling = () => {
+    schedulingRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div className="min-h-screen" style={{ background: "oklch(0.08 0.01 240)" }}>
+      <Navbar onScheduleClick={scrollToScheduling} />
+      <HeroSection onScheduleClick={scrollToScheduling} />
+      <ServicesSection />
+      <div ref={schedulingRef}>
+        <SchedulingSection />
+      </div>
+      <PaymentSection />
+      <ReviewsSection />
+      <Footer />
     </div>
   );
 }
