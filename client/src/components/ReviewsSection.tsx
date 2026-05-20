@@ -3,6 +3,10 @@ import { Star, CheckCircle2, Loader2, MessageSquarePlus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
+const IS_STATIC_SITE = import.meta.env.VITE_STATIC_SITE === "true";
+const BUSINESS_PHONE_DISPLAY = "580-461-5110";
+const BUSINESS_PHONE_LINK = "5804615110";
+
 function StarRating({
   rating,
   interactive = false,
@@ -52,7 +56,11 @@ export default function ReviewsSection() {
   const [form, setForm] = useState<ReviewFormState>(INITIAL_FORM);
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: approvedReviews, isLoading } = trpc.reviews.getApproved.useQuery();
+  const approvedReviewsQuery = trpc.reviews.getApproved.useQuery(undefined, {
+    enabled: !IS_STATIC_SITE,
+  });
+  const approvedReviews = IS_STATIC_SITE ? [] : approvedReviewsQuery.data;
+  const isLoading = !IS_STATIC_SITE && approvedReviewsQuery.isLoading;
 
   const submitMutation = trpc.reviews.submit.useMutation({
     onSuccess: () => {
@@ -70,6 +78,21 @@ export default function ReviewsSection() {
       toast.error("Please select a star rating.");
       return;
     }
+
+    if (IS_STATIC_SITE) {
+      const body = [
+        "Hi Down N' Dirty Cleaning Services, I would like to leave a review.",
+        `Name: ${form.reviewerName}`,
+        `Rating: ${form.rating}/5`,
+        `Review: ${form.message}`,
+      ].join("\n");
+      window.location.href = `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
+      setSubmitted(true);
+      setForm(INITIAL_FORM);
+      toast.success("Your review is ready to send by text message.");
+      return;
+    }
+
     submitMutation.mutate({
       reviewerName: form.reviewerName,
       rating: form.rating,
@@ -88,7 +111,6 @@ export default function ReviewsSection() {
   return (
     <section id="reviews" className="py-24">
       <div className="container">
-        {/* Header */}
         <div className="text-center mb-16">
           <p
             className="text-xs font-semibold tracking-[0.25em] uppercase mb-3"
@@ -105,7 +127,6 @@ export default function ReviewsSection() {
           <div className="section-divider mx-auto" />
         </div>
 
-        {/* Approved reviews grid */}
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 size={32} className="animate-spin" style={{ color: "oklch(0.72 0.18 185)" }} />
@@ -142,7 +163,6 @@ export default function ReviewsSection() {
           </div>
         )}
 
-        {/* Submit review form */}
         <div className="max-w-xl mx-auto">
           <h3
             className="font-display font-bold text-2xl mb-6 text-center"
@@ -152,9 +172,7 @@ export default function ReviewsSection() {
           </h3>
 
           {submitted ? (
-            <div
-              className="card-dark p-8 text-center flex flex-col items-center gap-3 glow-teal"
-            >
+            <div className="card-dark p-8 text-center flex flex-col items-center gap-3 glow-teal">
               <CheckCircle2 size={40} style={{ color: "oklch(0.72 0.18 185)" }} />
               <h4
                 className="font-display font-bold text-xl"
@@ -163,8 +181,15 @@ export default function ReviewsSection() {
                 Thank You!
               </h4>
               <p style={{ color: "oklch(0.6 0.03 240)" }} className="text-sm">
-                Your review has been submitted and is pending approval. We
-                appreciate your feedback!
+                {IS_STATIC_SITE
+                  ? "Your review text should be ready to send. If it did not open, call or text us at "
+                  : "Your review has been submitted and is pending approval. We appreciate your feedback!"}
+                {IS_STATIC_SITE ? (
+                  <a href={`tel:${BUSINESS_PHONE_LINK}`} style={{ color: "oklch(0.72 0.18 185)" }}>
+                    {BUSINESS_PHONE_DISPLAY}
+                  </a>
+                ) : null}
+                {IS_STATIC_SITE ? "." : null}
               </p>
               <button
                 className="btn-outline-teal px-5 py-2 text-sm mt-2"
@@ -175,7 +200,6 @@ export default function ReviewsSection() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="card-dark p-8 flex flex-col gap-5">
-              {/* Name */}
               <div>
                 <label
                   htmlFor="reviewerName"
@@ -197,7 +221,6 @@ export default function ReviewsSection() {
                 />
               </div>
 
-              {/* Star rating */}
               <div>
                 <label
                   className="block text-sm font-medium mb-2"
@@ -212,7 +235,6 @@ export default function ReviewsSection() {
                 />
               </div>
 
-              {/* Message */}
               <div>
                 <label
                   htmlFor="reviewMessage"
@@ -247,7 +269,7 @@ export default function ReviewsSection() {
                 ) : (
                   <>
                     <MessageSquarePlus size={18} />
-                    Submit Review
+                    {IS_STATIC_SITE ? "Text Review" : "Submit Review"}
                   </>
                 )}
               </button>
@@ -256,7 +278,9 @@ export default function ReviewsSection() {
                 className="text-xs text-center"
                 style={{ color: "oklch(0.45 0.02 240)" }}
               >
-                Reviews are moderated before appearing publicly.
+                {IS_STATIC_SITE
+                  ? "Reviews are sent directly by text message."
+                  : "Reviews are moderated before appearing publicly."}
               </p>
             </form>
           )}

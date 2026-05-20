@@ -12,6 +12,10 @@ const SERVICE_TYPES = [
   "Rental Turnover",
 ] as const;
 
+const IS_STATIC_SITE = import.meta.env.VITE_STATIC_SITE === "true";
+const BUSINESS_PHONE_DISPLAY = "580-461-5110";
+const BUSINESS_PHONE_LINK = "5804615110";
+
 type ServiceType = (typeof SERVICE_TYPES)[number];
 
 interface FormState {
@@ -31,6 +35,22 @@ const INITIAL: FormState = {
   address: "",
   notes: "",
 };
+
+function buildSmsUrl(form: FormState) {
+  const body = [
+    "Hi Down N' Dirty Cleaning Services, I would like to schedule a cleaning.",
+    `Name: ${form.name}`,
+    `Phone: ${form.phone}`,
+    `Service: ${form.serviceType}`,
+    `Preferred date: ${form.preferredDate}`,
+    `Address: ${form.address}`,
+    form.notes ? `Notes: ${form.notes}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
+}
 
 export default function SchedulingSection() {
   const [form, setForm] = useState<FormState>(INITIAL);
@@ -58,6 +78,15 @@ export default function SchedulingSection() {
       toast.error("Please select a service type.");
       return;
     }
+
+    if (IS_STATIC_SITE) {
+      window.location.href = buildSmsUrl(form);
+      setSubmitted(true);
+      setForm(INITIAL);
+      toast.success("Your request is ready to send by text message.");
+      return;
+    }
+
     submitMutation.mutate({
       name: form.name,
       phone: form.phone,
@@ -80,7 +109,6 @@ export default function SchedulingSection() {
     <section id="schedule" className="py-24">
       <div className="container">
         <div className="max-w-2xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-12">
             <p
               className="text-xs font-semibold tracking-[0.25em] uppercase mb-3"
@@ -98,25 +126,23 @@ export default function SchedulingSection() {
           </div>
 
           {submitted ? (
-            /* Success state */
-            <div
-              className="card-dark p-10 text-center flex flex-col items-center gap-4 glow-teal"
-            >
+            <div className="card-dark p-10 text-center flex flex-col items-center gap-4 glow-teal">
               <CheckCircle2 size={48} style={{ color: "oklch(0.72 0.18 185)" }} />
               <h3
                 className="font-display font-bold text-2xl"
                 style={{ color: "oklch(0.96 0.005 240)" }}
               >
-                Request Received!
+                Request Ready!
               </h3>
               <p style={{ color: "oklch(0.6 0.03 240)" }}>
-                We'll reach out to confirm your appointment shortly. You can also
-                call us at{" "}
+                {IS_STATIC_SITE
+                  ? "Your text message should be ready to send. If it did not open, call or text us directly at "
+                  : "We'll reach out to confirm your appointment shortly. You can also call us at "}
                 <a
-                  href="tel:5804615110"
+                  href={`tel:${BUSINESS_PHONE_LINK}`}
                   style={{ color: "oklch(0.72 0.18 185)" }}
                 >
-                  580-461-5110
+                  {BUSINESS_PHONE_DISPLAY}
                 </a>
                 .
               </p>
@@ -128,12 +154,10 @@ export default function SchedulingSection() {
               </button>
             </div>
           ) : (
-            /* Form */
             <form
               onSubmit={handleSubmit}
               className="card-dark p-8 flex flex-col gap-5"
             >
-              {/* Name */}
               <div>
                 <label
                   htmlFor="name"
@@ -155,7 +179,6 @@ export default function SchedulingSection() {
                 />
               </div>
 
-              {/* Phone */}
               <div>
                 <label
                   htmlFor="phone"
@@ -171,13 +194,12 @@ export default function SchedulingSection() {
                   required
                   value={form.phone}
                   onChange={handleChange}
-                  placeholder="580-461-5110"
+                  placeholder={BUSINESS_PHONE_DISPLAY}
                   className={inputClass}
                   style={inputStyle}
                 />
               </div>
 
-              {/* Service Type */}
               <div>
                 <label
                   htmlFor="serviceType"
@@ -206,7 +228,6 @@ export default function SchedulingSection() {
                 </select>
               </div>
 
-              {/* Preferred Date */}
               <div>
                 <label
                   htmlFor="preferredDate"
@@ -230,7 +251,6 @@ export default function SchedulingSection() {
                 />
               </div>
 
-              {/* Address */}
               <div>
                 <label
                   htmlFor="address"
@@ -252,7 +272,6 @@ export default function SchedulingSection() {
                 />
               </div>
 
-              {/* Notes */}
               <div>
                 <label
                   htmlFor="notes"
@@ -273,7 +292,6 @@ export default function SchedulingSection() {
                 />
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={submitMutation.isPending}
@@ -287,7 +305,7 @@ export default function SchedulingSection() {
                 ) : (
                   <>
                     <CalendarCheck size={18} />
-                    Submit Request
+                    {IS_STATIC_SITE ? "Text Request" : "Submit Request"}
                   </>
                 )}
               </button>
