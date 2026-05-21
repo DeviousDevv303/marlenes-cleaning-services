@@ -31,6 +31,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_API_URL: "https://marlenes-cleaning-services-api.onrender.com"
           VITE_CASHAPP_URL: "https://cash.app/$marlz720"
       - name: List dist contents
         run: ls -la dist/public/ && ls -la dist/public/assets/ || echo "No assets dir"

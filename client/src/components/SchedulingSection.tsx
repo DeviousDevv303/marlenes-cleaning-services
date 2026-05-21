@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { CalendarCheck, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { addRequest, sendBookingEmail } from "@/lib/localStorage";
+import { createBooking } from "@/lib/api";
 
 const SERVICE_TYPES = [
   "Deep Clean",
@@ -14,14 +14,17 @@ const SERVICE_TYPES = [
 
 const BUSINESS_PHONE_DISPLAY = "620-621-8934";
 const BUSINESS_PHONE_LINK = "6206218934";
+const OWNER_EMAIL = "towerslutz@gmail.com";
 
 type ServiceType = (typeof SERVICE_TYPES)[number];
 
 interface FormState {
   name: string;
   phone: string;
+  email: string;
   serviceType: ServiceType | "";
   preferredDate: string;
+  preferredTime: string;
   address: string;
   notes: string;
 }
@@ -29,26 +32,38 @@ interface FormState {
 const INITIAL: FormState = {
   name: "",
   phone: "",
+  email: "",
   serviceType: "",
   preferredDate: "",
+  preferredTime: "",
   address: "",
   notes: "",
 };
 
-function buildSmsUrl(form: FormState) {
-  const body = [
+function bookingMessage(form: FormState): string {
+  return [
     "Hi Marlene's Cleaning Services, I would like to schedule a cleaning.",
     `Name: ${form.name}`,
     `Phone: ${form.phone}`,
+    `Email: ${form.email}`,
     `Service: ${form.serviceType}`,
     `Preferred date: ${form.preferredDate}`,
+    `Preferred time: ${form.preferredTime}`,
     `Address: ${form.address}`,
     form.notes ? `Notes: ${form.notes}` : null,
   ]
     .filter(Boolean)
     .join("\n");
+}
 
-  return `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
+function buildSmsUrl(form: FormState): string {
+  return `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(bookingMessage(form))}`;
+}
+
+function openEmailFallback(form: FormState): void {
+  const subject = encodeURIComponent(`New Cleaning Request - ${form.name}`);
+  const body = encodeURIComponent(`${bookingMessage(form)}\n\nSent from Marlene's website`);
+  window.open(`mailto:${OWNER_EMAIL}?subject=${subject}&body=${body}`, "_blank", "noopener");
 }
 
 export default function SchedulingSection() {
@@ -72,30 +87,29 @@ export default function SchedulingSection() {
     setLoading(true);
 
     try {
-      // Save to localStorage
-      addRequest({
+      const result = await createBooking({
         name: form.name,
         phone: form.phone,
-        serviceType: form.serviceType,
-        preferredDate: form.preferredDate,
+        email: form.email,
+        service_type: form.serviceType,
+        preferred_date: form.preferredDate,
+        preferred_time: form.preferredTime,
         address: form.address,
         notes: form.notes || undefined,
       });
 
-      // Try to open SMS
-      const smsUrl = buildSmsUrl(form);
-      window.location.href = smsUrl;
-
-      // Also open email as backup notification
-      setTimeout(() => {
-        sendBookingEmail(form);
-      }, 500);
-
       setSubmitted(true);
       setForm(INITIAL);
-      toast.success("Request saved! Opening SMS and email notifications...");
+      toast.success(
+        result.emailSent
+          ? "Request sent. Marlene will confirm your booking soon."
+          : "Request saved. Marlene will follow up soon."
+      );
     } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      window.location.href = buildSmsUrl(form);
+      window.setTimeout(() => openEmailFallback(form), 500);
+      toast.error(`Booking server error: ${message}. Opening text and email backup.`);
     } finally {
       setLoading(false);
     }
@@ -137,7 +151,7 @@ export default function SchedulingSection() {
               className="text-xs font-semibold tracking-wide mt-2"
               style={{ color: "oklch(0.72 0.18 185)" }}
             >
-              ⚠️ SERIOUS INQUIRIES ONLY — $50 retainer required to confirm booking
+              Serious inquiries only - $50 retainer required to confirm booking.
             </p>
           </div>
 
@@ -148,10 +162,11 @@ export default function SchedulingSection() {
                 className="font-display font-bold text-2xl"
                 style={{ color: "oklch(0.96 0.005 240)" }}
               >
-                Request Submitted!
+                Request Submitted
               </h3>
               <p style={{ color: "oklch(0.6 0.03 240)" }}>
-                Your request has been saved. If SMS didn't open automatically, call or text us at{" "}
+                Your request was sent to Marlene's Cleaning Services. If you need to add
+                details, call or text{" "}
                 <a
                   href={`tel:${BUSINESS_PHONE_LINK}`}
                   style={{ color: "oklch(0.72 0.18 185)" }}
@@ -168,10 +183,7 @@ export default function SchedulingSection() {
               </button>
             </div>
           ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="card-dark p-8 flex flex-col gap-5"
-            >
+            <form onSubmit={handleSubmit} className="card-dark p-8 flex flex-col gap-5">
               <div>
                 <label
                   htmlFor="name"
@@ -193,25 +205,48 @@ export default function SchedulingSection() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium mb-1.5"
-                  style={{ color: "oklch(0.75 0.03 240)" }}
-                >
-                  Phone Number <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder={BUSINESS_PHONE_DISPLAY}
-                  className={inputClass}
-                  style={inputStyle}
-                />
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium mb-1.5"
+                    style={{ color: "oklch(0.75 0.03 240)" }}
+                  >
+                    Phone Number <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder={BUSINESS_PHONE_DISPLAY}
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1.5"
+                    style={{ color: "oklch(0.75 0.03 240)" }}
+                  >
+                    Email <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="you@example.com"
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                </div>
               </div>
 
               <div>
@@ -232,7 +267,7 @@ export default function SchedulingSection() {
                   style={inputStyle}
                 >
                   <option value="" disabled>
-                    Select a service…
+                    Select a service...
                   </option>
                   {SERVICE_TYPES.map((s) => (
                     <option key={s} value={s}>
@@ -242,27 +277,52 @@ export default function SchedulingSection() {
                 </select>
               </div>
 
-              <div>
-                <label
-                  htmlFor="preferredDate"
-                  className="block text-sm font-medium mb-1.5"
-                  style={{ color: "oklch(0.75 0.03 240)" }}
-                >
-                  Preferred Date <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
-                </label>
-                <input
-                  id="preferredDate"
-                  name="preferredDate"
-                  type="date"
-                  required
-                  value={form.preferredDate}
-                  onChange={handleChange}
-                  className={inputClass}
-                  style={{
-                    ...inputStyle,
-                    colorScheme: "dark",
-                  }}
-                />
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label
+                    htmlFor="preferredDate"
+                    className="block text-sm font-medium mb-1.5"
+                    style={{ color: "oklch(0.75 0.03 240)" }}
+                  >
+                    Preferred Date <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
+                  </label>
+                  <input
+                    id="preferredDate"
+                    name="preferredDate"
+                    type="date"
+                    required
+                    value={form.preferredDate}
+                    onChange={handleChange}
+                    className={inputClass}
+                    style={{
+                      ...inputStyle,
+                      colorScheme: "dark",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="preferredTime"
+                    className="block text-sm font-medium mb-1.5"
+                    style={{ color: "oklch(0.75 0.03 240)" }}
+                  >
+                    Preferred Time <span style={{ color: "oklch(0.72 0.18 185)" }}>*</span>
+                  </label>
+                  <input
+                    id="preferredTime"
+                    name="preferredTime"
+                    type="time"
+                    required
+                    value={form.preferredTime}
+                    onChange={handleChange}
+                    className={inputClass}
+                    style={{
+                      ...inputStyle,
+                      colorScheme: "dark",
+                    }}
+                  />
+                </div>
               </div>
 
               <div>
@@ -314,7 +374,7 @@ export default function SchedulingSection() {
                 {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Submitting…
+                    Submitting...
                   </>
                 ) : (
                   <>
@@ -325,7 +385,7 @@ export default function SchedulingSection() {
               </button>
 
               <p className="text-xs text-center" style={{ color: "oklch(0.5 0.03 240)" }}>
-                You'll receive an SMS confirmation. We typically respond within 2 hours.
+                Marlene will receive your request by email and follow up to confirm.
               </p>
             </form>
           )}

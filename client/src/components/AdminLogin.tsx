@@ -1,22 +1,17 @@
 import { useState } from "react";
 import { ShieldAlert, LogIn, Loader2 } from "lucide-react";
-import {
-  verifyAdminPassword,
-  adminLogin,
-  hasAdminPassword,
-  setAdminPassword,
-} from "@/lib/localStorage";
 import { toast } from "sonner";
+import { loginAdmin } from "@/lib/api";
 
 interface AdminLoginProps {
-  onLogin: () => void;
+  onLogin: (token: string) => void;
 }
 
 export default function AdminLogin({ onLogin }: AdminLoginProps) {
+  const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isFirstSetup, setIsFirstSetup] = useState(!hasAdminPassword());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,25 +19,22 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
     setLoading(true);
 
     try {
-      if (isFirstSetup) {
-        await setAdminPassword(password);
-        adminLogin();
-        onLogin();
-        toast.success("Admin password created!");
-      } else {
-        const valid = await verifyAdminPassword(password);
-        if (valid) {
-          adminLogin();
-          onLogin();
-        } else {
-          setError("Incorrect password. Try again.");
-        }
-      }
-    } catch {
-      setError("Something went wrong. Please try again.");
+      const result = await loginAdmin(username, password);
+      onLogin(result.token);
+      toast.success("Logged in successfully");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to log in.";
+      setError(message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const inputStyle = {
+    background: "oklch(0.12 0.02 240)",
+    border: "1px solid oklch(0.22 0.025 240)",
+    color: "oklch(0.96 0.005 240)",
+    outline: "none",
   };
 
   return (
@@ -57,19 +49,37 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             className="font-display font-bold text-2xl"
             style={{ color: "oklch(0.96 0.005 240)" }}
           >
-            {isFirstSetup ? "Create Admin Password" : "Admin Access"}
+            Admin Access
           </h2>
           <p
             className="text-sm mt-2"
             style={{ color: "oklch(0.6 0.03 240)" }}
           >
-            {isFirstSetup
-              ? "Set a secure password to access the admin panel."
-              : "Enter your admin password to continue."}
+            Sign in with the backend admin account.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+          <div className="flex flex-col gap-2 text-left">
+            <label
+              htmlFor="admin-username"
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: "oklch(0.6 0.03 240)" }}
+            >
+              Username
+            </label>
+            <input
+              id="admin-username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="admin"
+              className="w-full px-4 py-3 rounded-lg text-sm"
+              style={inputStyle}
+              required
+            />
+          </div>
+
           <div className="flex flex-col gap-2 text-left">
             <label
               htmlFor="admin-password"
@@ -83,16 +93,10 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={isFirstSetup ? "Create password..." : "Enter password..."}
+              placeholder="Enter password..."
               className="w-full px-4 py-3 rounded-lg text-sm"
-              style={{
-                background: "oklch(0.12 0.02 240)",
-                border: "1px solid oklch(0.22 0.025 240)",
-                color: "oklch(0.96 0.005 240)",
-                outline: "none",
-              }}
+              style={inputStyle}
               required
-              minLength={6}
             />
           </div>
 
@@ -104,7 +108,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
 
           <button
             type="submit"
-            disabled={loading || password.length < 6}
+            disabled={loading || !username.trim() || !password}
             className="btn-teal flex items-center justify-center gap-2 px-6 py-3 text-sm w-full disabled:opacity-60"
           >
             {loading ? (
@@ -112,7 +116,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             ) : (
               <LogIn size={16} />
             )}
-            {isFirstSetup ? "Create Password" : "Log In"}
+            Log In
           </button>
         </form>
 
@@ -121,7 +125,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
           className="text-sm"
           style={{ color: "oklch(0.55 0.03 240)" }}
         >
-          ← Back to site
+          Back to site
         </a>
       </div>
     </div>
