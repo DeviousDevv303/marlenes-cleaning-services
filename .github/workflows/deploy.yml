@@ -32,6 +32,8 @@ jobs:
         env:
           NODE_ENV: production
           VITE_CASHAPP_URL: "https://cash.app/$marlz720"
+      - name: List dist contents
+        run: ls -la dist/public/ && ls -la dist/public/assets/ || echo "No assets dir"
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
