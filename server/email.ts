@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import type { Booking } from "../drizzle/schema";
+import type { Booking } from "../drizzle/schema.js";
 
 const OWNER_EMAIL = "towerslutz@gmail.com";
 const CASHAPP_HANDLE = "$marlz720";

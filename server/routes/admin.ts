@@ -1,18 +1,18 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import { authenticateAdmin } from "../auth";
+import { authenticateAdmin } from "../auth.js";
 import {
   deleteBooking,
   listBookings,
   markRetainerPaid,
   updateBookingStatus,
-} from "../db";
+} from "../db.js";
 import {
   adminLoginSchema,
   bookingIdParamsSchema,
   updateStatusSchema,
-} from "../validation";
-import { signAdminToken, verifyAdminCredentials } from "../auth";
+} from "../validation.js";
+import { signAdminToken, verifyAdminCredentials } from "../auth.js";
 
 export const adminRoutes = Router();
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createBooking } from "../db";
-import { sendNewBookingEmail } from "../email";
-import { createBookingSchema } from "../validation";
+import { createBooking } from "../db.js";
+import { sendNewBookingEmail } from "../email.js";
+import { createBookingSchema } from "../validation.js";
 
 export const bookingRoutes = Router();
 

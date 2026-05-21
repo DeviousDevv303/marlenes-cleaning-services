@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsx watch server/index.ts",
-    "build": "npm run check",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "build": "npm run check && tsc -p tsconfig.server.json",
+    "start": "NODE_ENV=production node dist/server/index.js",
     "check": "tsc -p tsconfig.server.json --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",

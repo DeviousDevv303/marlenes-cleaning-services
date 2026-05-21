@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { getAdminByUsername } from "./db";
+import { getAdminByUsername } from "./db.js";
 
 const JWT_EXPIRES_IN = "24h";
 const SALT_ROUNDS = 12;

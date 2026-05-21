@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { admin, bookings, type NewBooking } from "../drizzle/schema";
+import { admin, bookings, type NewBooking } from "../drizzle/schema.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 

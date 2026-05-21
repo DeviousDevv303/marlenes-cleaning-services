@@ -2,10 +2,10 @@ import "dotenv/config";
 import cors from "cors";
 import express, { type ErrorRequestHandler } from "express";
 import helmet from "helmet";
-import { adminRoutes } from "./routes/admin";
-import { bookingRoutes } from "./routes/bookings";
-import { ensureDatabaseSchema } from "./db";
-import { seedAdminUser } from "./seed";
+import { adminRoutes } from "./routes/admin.js";
+import { bookingRoutes } from "./routes/bookings.js";
+import { ensureDatabaseSchema } from "./db.js";
+import { seedAdminUser } from "./seed.js";
 
 const FRONTEND_ORIGIN = "https://deviousdevv303.github.io";
 const FRONTEND_REPO_ORIGIN = "https://deviousdevv303.github.io/marlenes-cleaning-services";

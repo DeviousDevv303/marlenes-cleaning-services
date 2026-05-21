@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { createAdmin, getAdminByUsername } from "./db";
+import { createAdmin, getAdminByUsername } from "./db.js";
 
 const ADMIN_USERNAME = "admin";
 const ADMIN_PASSWORD = "Marlene2024!";
