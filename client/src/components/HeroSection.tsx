@@ -92,7 +92,7 @@ export default function HeroSection({ onScheduleClick }: HeroSectionProps) {
             className="btn-outline-teal flex items-center gap-2 px-8 py-4 text-base"
           >
             <Phone size={18} />
-            Call Now — 580-461-5110
+            Call Now — 620-621-8934
           </a>
         </div>
 

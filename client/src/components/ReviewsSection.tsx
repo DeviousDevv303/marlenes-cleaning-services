@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { addReview, getApprovedReviews } from "@/lib/localStorage";
 import type { Review } from "@/lib/localStorage";
 
-const BUSINESS_PHONE_DISPLAY = "580-461-5110";
+const BUSINESS_PHONE_DISPLAY = "620-621-8934";
 const BUSINESS_PHONE_LINK = "6206218934";
 
 function StarRating({

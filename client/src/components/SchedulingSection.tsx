@@ -12,7 +12,7 @@ const SERVICE_TYPES = [
   "Rental Turnover",
 ] as const;
 
-const BUSINESS_PHONE_DISPLAY = "580-461-5110";
+const BUSINESS_PHONE_DISPLAY = "620-621-8934";
 const BUSINESS_PHONE_LINK = "6206218934";
 
 type ServiceType = (typeof SERVICE_TYPES)[number];

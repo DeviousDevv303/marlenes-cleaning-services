@@ -48,7 +48,7 @@ export default function Footer() {
           style={{ color: "oklch(0.72 0.18 185)" }}
         >
           <Phone size={15} />
-          580-461-5110
+          620-621-8934
         </a>
       </div>
 

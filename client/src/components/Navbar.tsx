@@ -116,7 +116,7 @@ export default function Navbar({ onScheduleClick }: NavbarProps) {
               className="btn-teal px-4 py-2 text-sm text-center mt-1"
               onClick={() => setOpen(false)}
             >
-              Call Now — 580-461-5110
+              Call Now — 620-621-8934
             </a>
           </nav>
         </div>
