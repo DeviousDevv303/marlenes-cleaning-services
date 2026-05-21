@@ -3,10 +3,10 @@ import { ShieldAlert, LogIn, Loader2 } from "lucide-react";
 import {
   verifyAdminPassword,
   adminLogin,
-  isAdminLoggedIn,
   hasAdminPassword,
   setAdminPassword,
-} from "@/lib/adminAuth";
+} from "@/lib/localStorage";
+import { toast } from "sonner";
 
 interface AdminLoginProps {
   onLogin: () => void;
@@ -28,6 +28,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
         await setAdminPassword(password);
         adminLogin();
         onLogin();
+        toast.success("Admin password created!");
       } else {
         const valid = await verifyAdminPassword(password);
         if (valid) {
@@ -116,7 +117,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
         </form>
 
         <a
-          href="/"
+          href="/marlenes-cleaning-services/"
           className="text-sm"
           style={{ color: "oklch(0.55 0.03 240)" }}
         >

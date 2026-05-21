@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, CheckCircle2, Loader2, MessageSquarePlus } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { addReview, getApprovedReviews } from "@/lib/localStorage";
+import type { Review } from "@/lib/localStorage";
 
-const IS_STATIC_SITE = import.meta.env.VITE_STATIC_SITE === "true";
 const BUSINESS_PHONE_DISPLAY = "580-461-5110";
 const BUSINESS_PHONE_LINK = "6206218934";
 
@@ -34,7 +34,7 @@ function StarRating({
           <Star
             size={interactive ? 22 : 16}
             className={
-              star <= (hovered || rating) ? "star-filled" : "star-empty"
+              star <= (hovered || rating) ? "text-yellow-400" : "text-gray-600"
             }
             fill={star <= (hovered || rating) ? "currentColor" : "none"}
           />
@@ -55,22 +55,14 @@ const INITIAL_FORM: ReviewFormState = { reviewerName: "", rating: 5, message: ""
 export default function ReviewsSection() {
   const [form, setForm] = useState<ReviewFormState>(INITIAL_FORM);
   const [submitted, setSubmitted] = useState(false);
+  const [approvedReviews, setApprovedReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const approvedReviewsQuery = trpc.reviews.getApproved.useQuery(undefined, {
-    enabled: !IS_STATIC_SITE,
-  });
-  const approvedReviews = IS_STATIC_SITE ? [] : approvedReviewsQuery.data;
-  const isLoading = !IS_STATIC_SITE && approvedReviewsQuery.isLoading;
-
-  const submitMutation = trpc.reviews.submit.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      setForm(INITIAL_FORM);
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to submit review. Please try again.");
-    },
-  });
+  // Load approved reviews on mount
+  useEffect(() => {
+    setApprovedReviews(getApprovedReviews());
+    setIsLoading(false);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,25 +71,27 @@ export default function ReviewsSection() {
       return;
     }
 
-    if (IS_STATIC_SITE) {
-      const body = [
-        "Hi Marlene's Cleaning Services, I would like to leave a review.",
-        `Name: ${form.reviewerName}`,
-        `Rating: ${form.rating}/5`,
-        `Review: ${form.message}`,
-      ].join("\n");
-      window.location.href = `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
-      setSubmitted(true);
-      setForm(INITIAL_FORM);
-      toast.success("Your review is ready to send by text message.");
-      return;
-    }
-
-    submitMutation.mutate({
+    // Save to localStorage (goes to pending for admin approval)
+    addReview({
       reviewerName: form.reviewerName,
       rating: form.rating,
       message: form.message,
     });
+
+    // Also try SMS as notification
+    const body = [
+      "Hi Marlene's Cleaning Services, I would like to leave a review.",
+      `Name: ${form.reviewerName}`,
+      `Rating: ${form.rating}/5`,
+      `Review: ${form.message}`,
+    ].join("\n");
+    
+    // Try to open SMS
+    window.location.href = `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
+
+    setSubmitted(true);
+    setForm(INITIAL_FORM);
+    toast.success("Review submitted! Pending approval.");
   };
 
   const inputClass =
@@ -131,7 +125,7 @@ export default function ReviewsSection() {
           <div className="flex justify-center py-12">
             <Loader2 size={32} className="animate-spin" style={{ color: "oklch(0.72 0.18 185)" }} />
           </div>
-        ) : approvedReviews && approvedReviews.length > 0 ? (
+        ) : approvedReviews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {approvedReviews.map((review) => (
               <div key={review.id} className="card-dark card-dark-hover p-6 flex flex-col gap-3">
@@ -181,15 +175,12 @@ export default function ReviewsSection() {
                 Thank You!
               </h4>
               <p style={{ color: "oklch(0.6 0.03 240)" }} className="text-sm">
-                {IS_STATIC_SITE
-                  ? "Your review text should be ready to send. If it did not open, call or text us at "
-                  : "Your review has been submitted and is pending approval. We appreciate your feedback!"}
-                {IS_STATIC_SITE ? (
-                  <a href={`tel:${BUSINESS_PHONE_LINK}`} style={{ color: "oklch(0.72 0.18 185)" }}>
-                    {BUSINESS_PHONE_DISPLAY}
-                  </a>
-                ) : null}
-                {IS_STATIC_SITE ? "." : null}
+                Your review has been submitted and is pending approval. 
+                If SMS didn't open, call or text us at{" "}
+                <a href={`tel:${BUSINESS_PHONE_LINK}`} style={{ color: "oklch(0.72 0.18 185)" }}>
+                  {BUSINESS_PHONE_DISPLAY}
+                </a>
+                .
               </p>
               <button
                 className="btn-outline-teal px-5 py-2 text-sm mt-2"
@@ -258,29 +249,17 @@ export default function ReviewsSection() {
 
               <button
                 type="submit"
-                disabled={submitMutation.isPending}
-                className="btn-teal flex items-center justify-center gap-2 py-3 text-base disabled:opacity-60 disabled:cursor-not-allowed"
+                className="btn-teal flex items-center justify-center gap-2 py-3 text-base"
               >
-                {submitMutation.isPending ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Submitting…
-                  </>
-                ) : (
-                  <>
-                    <MessageSquarePlus size={18} />
-                    {IS_STATIC_SITE ? "Text Review" : "Submit Review"}
-                  </>
-                )}
+                <MessageSquarePlus size={18} />
+                Submit Review
               </button>
 
               <p
                 className="text-xs text-center"
                 style={{ color: "oklch(0.45 0.02 240)" }}
               >
-                {IS_STATIC_SITE
-                  ? "Reviews are sent directly by text message."
-                  : "Reviews are moderated before appearing publicly."}
+                Reviews are moderated before appearing publicly.
               </p>
             </form>
           )}

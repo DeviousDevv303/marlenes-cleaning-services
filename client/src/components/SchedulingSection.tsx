@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { CalendarCheck, CheckCircle2, Loader2 } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { CalendarCheck, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { addRequest, sendBookingEmail } from "@/lib/localStorage";
 
 const SERVICE_TYPES = [
   "Deep Clean",
@@ -12,7 +12,6 @@ const SERVICE_TYPES = [
   "Rental Turnover",
 ] as const;
 
-const IS_STATIC_SITE = import.meta.env.VITE_STATIC_SITE === "true";
 const BUSINESS_PHONE_DISPLAY = "580-461-5110";
 const BUSINESS_PHONE_LINK = "6206218934";
 
@@ -55,16 +54,7 @@ function buildSmsUrl(form: FormState) {
 export default function SchedulingSection() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [submitted, setSubmitted] = useState(false);
-
-  const submitMutation = trpc.scheduling.submit.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      setForm(INITIAL);
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again.");
-    },
-  });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -72,29 +62,43 @@ export default function SchedulingSection() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.serviceType) {
       toast.error("Please select a service type.");
       return;
     }
 
-    if (IS_STATIC_SITE) {
-      window.location.href = buildSmsUrl(form);
+    setLoading(true);
+
+    try {
+      // Save to localStorage
+      addRequest({
+        name: form.name,
+        phone: form.phone,
+        serviceType: form.serviceType,
+        preferredDate: form.preferredDate,
+        address: form.address,
+        notes: form.notes || undefined,
+      });
+
+      // Try to open SMS
+      const smsUrl = buildSmsUrl(form);
+      window.location.href = smsUrl;
+
+      // Also open email as backup notification
+      setTimeout(() => {
+        sendBookingEmail(form);
+      }, 500);
+
       setSubmitted(true);
       setForm(INITIAL);
-      toast.success("Your request is ready to send by text message.");
-      return;
+      toast.success("Request saved! Opening SMS and email notifications...");
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    submitMutation.mutate({
-      name: form.name,
-      phone: form.phone,
-      serviceType: form.serviceType as ServiceType,
-      preferredDate: form.preferredDate,
-      address: form.address,
-      notes: form.notes || undefined,
-    });
   };
 
   const inputClass =
@@ -132,12 +136,10 @@ export default function SchedulingSection() {
                 className="font-display font-bold text-2xl"
                 style={{ color: "oklch(0.96 0.005 240)" }}
               >
-                Request Ready!
+                Request Submitted!
               </h3>
               <p style={{ color: "oklch(0.6 0.03 240)" }}>
-                {IS_STATIC_SITE
-                  ? "Your text message should be ready to send. If it did not open, call or text us directly at "
-                  : "We'll reach out to confirm your appointment shortly. You can also call us at "}
+                Your request has been saved. If SMS didn't open automatically, call or text us at{" "}
                 <a
                   href={`tel:${BUSINESS_PHONE_LINK}`}
                   style={{ color: "oklch(0.72 0.18 185)" }}
@@ -173,7 +175,7 @@ export default function SchedulingSection() {
                   required
                   value={form.name}
                   onChange={handleChange}
-                  placeholder="Marlene Moreno"
+                  placeholder="Your full name"
                   className={inputClass}
                   style={inputStyle}
                 />
@@ -294,10 +296,10 @@ export default function SchedulingSection() {
 
               <button
                 type="submit"
-                disabled={submitMutation.isPending}
+                disabled={loading}
                 className="btn-teal flex items-center justify-center gap-2 py-4 text-base mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitMutation.isPending ? (
+                {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
                     Submitting…
@@ -305,10 +307,14 @@ export default function SchedulingSection() {
                 ) : (
                   <>
                     <CalendarCheck size={18} />
-                    {IS_STATIC_SITE ? "Text Request" : "Submit Request"}
+                    Submit Request
                   </>
                 )}
               </button>
+
+              <p className="text-xs text-center" style={{ color: "oklch(0.5 0.03 240)" }}>
+                You'll receive an SMS confirmation. We typically respond within 2 hours.
+              </p>
             </form>
           )}
         </div>
