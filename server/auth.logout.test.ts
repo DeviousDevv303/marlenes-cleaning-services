@@ -1,7 +1,17 @@
-import { describe, expect, it } from "vitest";
-import { appRouter } from "./routers";
+import { describe, expect, it, vi } from "vitest";
 import { COOKIE_NAME } from "../shared/const";
 import type { TrpcContext } from "./_core/context";
+
+vi.mock("./db", () => ({
+  createSchedulingRequest: vi.fn().mockResolvedValue(undefined),
+  getAllSchedulingRequests: vi.fn().mockResolvedValue([]),
+  createReview: vi.fn().mockResolvedValue(undefined),
+  getApprovedReviews: vi.fn().mockResolvedValue([]),
+  getPendingReviews: vi.fn().mockResolvedValue([]),
+  moderateReview: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { appRouter } from "./routers";
 
 type CookieCall = {
   name: string;

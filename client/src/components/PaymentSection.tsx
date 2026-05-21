@@ -38,6 +38,7 @@ const PAYMENT_PROVIDERS = [
 export default function PaymentSection() {
   // Hardcoded CashApp link for $Marlz720
   const cashAppUrl = "https://cash.app/$marlz720";
+  const cashAppQrUrl = `${import.meta.env.BASE_URL}marlene-cashapp-qr.png`;
   
   return (
     <section id="payments" className="py-24">
@@ -72,6 +73,55 @@ export default function PaymentSection() {
               We accept multiple payment methods for your convenience. Choose
               whichever works best for you.
             </p>
+          </div>
+
+          {/* Cash App QR */}
+          <div className="max-w-4xl mx-auto mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] items-center">
+            <a
+              href={cashAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card-dark card-dark-hover p-4 md:p-5 flex items-center justify-center glow-teal"
+              aria-label="Open Cash App payment page for Marlene Moreno-Resendez"
+            >
+              <img
+                src={cashAppQrUrl}
+                alt="Cash App QR code for Marlene Moreno-Resendez, $marlz720"
+                className="w-full max-w-[280px] rounded-2xl"
+                loading="lazy"
+              />
+            </a>
+            <div className="text-center lg:text-left flex flex-col items-center lg:items-start gap-4">
+              <span
+                className="text-xs font-semibold tracking-[0.25em] uppercase"
+                style={{ color: "oklch(0.72 0.18 185)" }}
+              >
+                Cash App Retainer
+              </span>
+              <h3
+                className="font-display font-bold text-3xl md:text-4xl"
+                style={{ color: "oklch(0.96 0.005 240)" }}
+              >
+                Scan to pay $50
+              </h3>
+              <p
+                className="text-sm md:text-base max-w-md"
+                style={{ color: "oklch(0.6 0.03 240)" }}
+              >
+                Send the booking retainer to{" "}
+                <span style={{ color: "oklch(0.72 0.18 185)" }}>$marlz720</span>{" "}
+                under Marlene Moreno-Resendez.
+              </p>
+              <a
+                href={cashAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-teal inline-flex items-center gap-2 px-6 py-3 text-sm"
+              >
+                <ExternalLink size={16} />
+                Open Cash App
+              </a>
+            </div>
           </div>
 
           {/* Payment cards */}
@@ -141,28 +191,6 @@ export default function PaymentSection() {
                 <div key={provider.name}>{content}</div>
               );
             })}
-          </div>
-
-          {/* QR Code */}
-          <div className="text-center mt-8 mb-4">
-            <p
-              className="text-xs font-semibold tracking-wide mb-3"
-              style={{ color: "oklch(0.72 0.18 185)" }}
-            >
-              Scan to pay with Cash App
-            </p>
-            <img
-              src="/cashapp-qr.svg"
-              alt="CashApp QR Code - $Marlz720"
-              className="mx-auto rounded-lg"
-              style={{ maxWidth: "200px", border: "2px solid oklch(0.72 0.22 145 / 0.3)" }}
-            />
-            <p
-              className="text-xs mt-2"
-              style={{ color: "oklch(0.6 0.03 240)" }}
-            >
-              $Marlz720
-            </p>
           </div>
 
           {/* Note */}
