@@ -61,6 +61,12 @@ export interface DeleteBookingResponse {
   booking: Booking;
 }
 
+export interface HealthResponse {
+  ok: boolean;
+  service: string;
+  timestamp: string;
+}
+
 function apiBaseUrl(): string {
   const configured = import.meta.env.VITE_API_URL as string | undefined;
   const baseUrl = configured?.trim() || DEFAULT_API_URL;
@@ -106,6 +112,10 @@ export function createBooking(payload: CreateBookingPayload): Promise<CreateBook
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function getHealth(): Promise<HealthResponse> {
+  return request<HealthResponse>("/api/health");
 }
 
 export function loginAdmin(username: string, password: string): Promise<AdminLoginResponse> {

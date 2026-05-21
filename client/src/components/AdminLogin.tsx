@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { ShieldAlert, LogIn, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, CheckCircle2, ShieldAlert, LogIn, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { loginAdmin } from "@/lib/api";
+import { getApiBaseUrl, getHealth, loginAdmin } from "@/lib/api";
 
 interface AdminLoginProps {
   onLogin: (token: string) => void;
@@ -12,6 +12,26 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkBackend() {
+      try {
+        await getHealth();
+        if (!cancelled) setBackendStatus("online");
+      } catch {
+        if (!cancelled) setBackendStatus("offline");
+      }
+    }
+
+    void checkBackend();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +76,38 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             style={{ color: "oklch(0.6 0.03 240)" }}
           >
             Sign in with the backend admin account.
+          </p>
+          <div
+            className="mt-4 rounded-lg px-3 py-2 text-xs flex items-center justify-center gap-2"
+            style={{
+              background: backendStatus === "offline"
+                ? "oklch(0.55 0.22 25 / 0.12)"
+                : "oklch(0.12 0.02 240)",
+              color: backendStatus === "online"
+                ? "oklch(0.72 0.18 185)"
+                : backendStatus === "offline"
+                  ? "oklch(0.75 0.18 25)"
+                  : "oklch(0.6 0.03 240)",
+              border: `1px solid ${
+                backendStatus === "offline"
+                  ? "oklch(0.55 0.22 25 / 0.35)"
+                  : "oklch(0.22 0.025 240)"
+              }`,
+            }}
+          >
+            {backendStatus === "online" && <CheckCircle2 size={14} />}
+            {backendStatus === "offline" && <AlertTriangle size={14} />}
+            {backendStatus === "checking" && <Loader2 size={14} className="animate-spin" />}
+            <span>
+              {backendStatus === "online"
+                ? "Backend online"
+                : backendStatus === "offline"
+                  ? "Backend offline or not deployed"
+                  : "Checking backend"}
+            </span>
+          </div>
+          <p className="mt-2 text-[11px]" style={{ color: "oklch(0.45 0.02 240)" }}>
+            API: {getApiBaseUrl()}
           </p>
         </div>
 

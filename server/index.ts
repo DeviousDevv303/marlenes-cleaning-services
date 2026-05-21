@@ -8,8 +8,17 @@ import { ensureDatabaseSchema } from "./db.js";
 import { seedAdminUser } from "./seed.js";
 
 const FRONTEND_ORIGIN = "https://deviousdevv303.github.io";
-const FRONTEND_REPO_ORIGIN = "https://deviousdevv303.github.io/marlenes-cleaning-services";
 const PORT = Number(process.env.PORT || 10000);
+const LOCAL_FRONTEND_ORIGINS = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+  "http://localhost:4174",
+  "http://127.0.0.1:4174",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
 
 const app = express();
 
@@ -19,9 +28,7 @@ app.use(cors({
   origin(origin, callback) {
     const allowedOrigins = new Set([
       FRONTEND_ORIGIN,
-      FRONTEND_REPO_ORIGIN,
-      "http://localhost:5173",
-      "http://localhost:3000",
+      ...LOCAL_FRONTEND_ORIGINS,
     ]);
 
     if (!origin || allowedOrigins.has(origin)) {
