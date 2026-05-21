@@ -81,7 +81,7 @@ export default function ReviewsSection() {
 
     if (IS_STATIC_SITE) {
       const body = [
-        "Hi Down N' Dirty Cleaning Services, I would like to leave a review.",
+        "Hi Marlene's Cleaning Services, I would like to leave a review.",
         `Name: ${form.reviewerName}`,
         `Rating: ${form.rating}/5`,
         `Review: ${form.message}`,

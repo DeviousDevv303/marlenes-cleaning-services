@@ -42,7 +42,7 @@ export default function HeroSection({ onScheduleClick }: HeroSectionProps) {
             animationDelay: "0.1s",
           }}
         >
-          Down N&apos; Dirty Cleaning Services
+          Marlene&apos;s Cleaning Services
         </p>
 
         {/* Headline */}

@@ -38,7 +38,7 @@ const INITIAL: FormState = {
 
 function buildSmsUrl(form: FormState) {
   const body = [
-    "Hi Down N' Dirty Cleaning Services, I would like to schedule a cleaning.",
+    "Hi Marlene's Cleaning Services, I would like to schedule a cleaning.",
     `Name: ${form.name}`,
     `Phone: ${form.phone}`,
     `Service: ${form.serviceType}`,

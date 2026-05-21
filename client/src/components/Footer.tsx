@@ -17,7 +17,7 @@ export default function Footer() {
             className="font-display font-bold text-base"
             style={{ color: "oklch(0.96 0.005 240)" }}
           >
-            Down N&apos; Dirty Cleaning Services
+            Marlene&apos;s Cleaning Services
           </span>
         </div>
 
@@ -56,7 +56,7 @@ export default function Footer() {
         className="text-center text-xs mt-6"
         style={{ color: "oklch(0.4 0.02 240)" }}
       >
-        &copy; {new Date().getFullYear()} Down N&apos; Dirty Cleaning Services. All rights reserved.
+        &copy; {new Date().getFullYear()} Marlene&apos;s Cleaning Services. All rights reserved.
       </p>
     </footer>
   );
