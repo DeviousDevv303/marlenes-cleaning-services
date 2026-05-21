@@ -1046,3 +1046,4 @@ await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin 
 // Backend - use input.origin to build the URL
 const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```
+# Trigger build Thu May 21 04:29:06 UTC 2026
