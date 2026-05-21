@@ -68,7 +68,7 @@ export default function Navbar({ onScheduleClick }: NavbarProps) {
               {l.label}
             </a>
           ))}
-          <a href="tel:5804615110" className="btn-teal px-4 py-2 text-sm">
+          <a href="tel:6206218934" className="btn-teal px-4 py-2 text-sm">
             Call Now
           </a>
         </nav>
@@ -112,7 +112,7 @@ export default function Navbar({ onScheduleClick }: NavbarProps) {
               </a>
             ))}
             <a
-              href="tel:5804615110"
+              href="tel:6206218934"
               className="btn-teal px-4 py-2 text-sm text-center mt-1"
               onClick={() => setOpen(false)}
             >

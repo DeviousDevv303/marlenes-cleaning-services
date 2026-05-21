@@ -88,7 +88,7 @@ export default function HeroSection({ onScheduleClick }: HeroSectionProps) {
           </button>
 
           <a
-            href="tel:5804615110"
+            href="tel:6206218934"
             className="btn-outline-teal flex items-center gap-2 px-8 py-4 text-base"
           >
             <Phone size={18} />

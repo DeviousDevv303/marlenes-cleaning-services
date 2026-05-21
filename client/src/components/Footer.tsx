@@ -43,7 +43,7 @@ export default function Footer() {
 
         {/* Phone */}
         <a
-          href="tel:5804615110"
+          href="tel:6206218934"
           className="flex items-center gap-2 text-sm font-medium"
           style={{ color: "oklch(0.72 0.18 185)" }}
         >

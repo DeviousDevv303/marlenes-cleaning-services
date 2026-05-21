@@ -14,7 +14,7 @@ const SERVICE_TYPES = [
 
 const IS_STATIC_SITE = import.meta.env.VITE_STATIC_SITE === "true";
 const BUSINESS_PHONE_DISPLAY = "580-461-5110";
-const BUSINESS_PHONE_LINK = "5804615110";
+const BUSINESS_PHONE_LINK = "6206218934";
 
 type ServiceType = (typeof SERVICE_TYPES)[number];
 

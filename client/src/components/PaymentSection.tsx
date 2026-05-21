@@ -144,7 +144,7 @@ export default function PaymentSection() {
           >
             Payment links are configured by the business owner. Contact us at{" "}
             <a
-              href="tel:5804615110"
+              href="tel:6206218934"
               style={{ color: "oklch(0.72 0.18 185)" }}
             >
               580-461-5110
