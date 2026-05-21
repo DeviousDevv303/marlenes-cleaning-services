@@ -143,6 +143,28 @@ export default function PaymentSection() {
             })}
           </div>
 
+          {/* QR Code */}
+          <div className="text-center mt-8 mb-4">
+            <p
+              className="text-xs font-semibold tracking-wide mb-3"
+              style={{ color: "oklch(0.72 0.18 185)" }}
+            >
+              Scan to pay with Cash App
+            </p>
+            <img
+              src="/cashapp-qr.svg"
+              alt="CashApp QR Code - $Marlz720"
+              className="mx-auto rounded-lg"
+              style={{ maxWidth: "200px", border: "2px solid oklch(0.72 0.22 145 / 0.3)" }}
+            />
+            <p
+              className="text-xs mt-2"
+              style={{ color: "oklch(0.6 0.03 240)" }}
+            >
+              $Marlz720
+            </p>
+          </div>
+
           {/* Note */}
           <p
             className="text-center text-xs mt-8"
