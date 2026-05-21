@@ -1,3 +1,11 @@
+# Marlene's Cleaning Services
+
+**Live Website:** [https://deviousdevv303.github.io/marlenes-cleaning-services/](https://deviousdevv303.github.io/marlenes-cleaning-services/)
+
+**Repository:** [https://github.com/DeviousDevv303/marlenes-cleaning-services](https://github.com/DeviousDevv303/marlenes-cleaning-services)
+
+This repository contains the published website for Marlene's Cleaning Services. Use the **Live Website** link above to open the deployed site directly.
+
 # Web App Template (tRPC + Manus Auth + Database)
 
 This template gives you a React 19 + Tailwind 4 + Express 4 + tRPC 11 stack with Manus OAuth already wired. Procedures are your contracts, types flow end to end, and authentication "just works".
