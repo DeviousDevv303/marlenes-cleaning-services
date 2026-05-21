@@ -36,6 +36,9 @@ const PAYMENT_PROVIDERS = [
 ] as const;
 
 export default function PaymentSection() {
+  // Hardcoded CashApp link for $Marlz720
+  const cashAppUrl = "https://cash.app/$marlz720";
+  
   return (
     <section id="payments" className="py-24">
       {/* Background accent */}
@@ -74,7 +77,10 @@ export default function PaymentSection() {
           {/* Payment cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl mx-auto">
             {PAYMENT_PROVIDERS.map((provider) => {
-              const url = import.meta.env[provider.envKey] as string | undefined;
+              // Use hardcoded CashApp URL, otherwise check env
+              const url = provider.name === "Cash App" 
+                ? cashAppUrl 
+                : (import.meta.env[provider.envKey] as string | undefined);
               const isConfigured = Boolean(url);
 
               const content = (
