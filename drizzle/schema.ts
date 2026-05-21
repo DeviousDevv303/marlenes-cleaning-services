@@ -1,47 +1,36 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, pgEnum, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
+export const bookingStatusEnum = pgEnum("booking_status", [
+  "pending",
+  "confirmed",
+  "completed",
+  "cancelled",
+]);
 
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-
-// ── Scheduling Requests ──────────────────────────────────────────────────────
-
-export const schedulingRequests = mysqlTable("scheduling_requests", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 30 }).notNull(),
-  serviceType: varchar("serviceType", { length: 100 }).notNull(),
-  preferredDate: varchar("preferredDate", { length: 30 }).notNull(),
+export const bookings = pgTable("bookings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 160 }).notNull(),
+  phone: varchar("phone", { length: 40 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
   address: text("address").notNull(),
+  serviceType: varchar("service_type", { length: 120 }).notNull(),
+  preferredDate: varchar("preferred_date", { length: 40 }).notNull(),
+  preferredTime: varchar("preferred_time", { length: 40 }).notNull(),
   notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  retainerPaid: boolean("retainer_paid").default(false).notNull(),
+  status: bookingStatusEnum("status").default("pending").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export type SchedulingRequest = typeof schedulingRequests.$inferSelect;
-export type InsertSchedulingRequest = typeof schedulingRequests.$inferInsert;
-
-// ── Reviews ──────────────────────────────────────────────────────────────────
-
-export const reviews = mysqlTable("reviews", {
-  id: int("id").autoincrement().primaryKey(),
-  reviewerName: varchar("reviewerName", { length: 255 }).notNull(),
-  rating: int("rating").notNull(), // 1–5
-  message: text("message").notNull(),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const admin = pgTable("admin", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  username: varchar("username", { length: 80 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export type Review = typeof reviews.$inferSelect;
-export type InsertReview = typeof reviews.$inferInsert;
+export type Booking = typeof bookings.$inferSelect;
+export type NewBooking = typeof bookings.$inferInsert;
+export type Admin = typeof admin.$inferSelect;
+export type NewAdmin = typeof admin.$inferInsert;

@@ -1047,3 +1047,157 @@ await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin 
 const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```
 # Trigger build Thu May 21 04:29:06 UTC 2026
+# Marlene's Cleaning Services Backend
+
+Production REST backend for Marlene's Cleaning Services.
+
+## Stack
+
+- Express.js
+- TypeScript
+- Drizzle ORM
+- PostgreSQL
+- Resend email
+- Helmet security headers
+- CORS for the GitHub Pages frontend
+- Zod validation
+- JWT admin auth
+- bcryptjs password hashing with 12 salt rounds
+
+## Live Frontend
+
+https://deviousdevv303.github.io/marlenes-cleaning-services
+
+## CashApp Retainer
+
+Customers pay the $50 retainer to:
+
+```txt
+$marlz720
+```
+
+## Required Environment Variables
+
+```txt
+DATABASE_URL=postgres://...
+JWT_SECRET=replace-with-a-long-random-secret
+RESEND_API_KEY=re_...
+RESEND_FROM_EMAIL="Marlene's Cleaning Services <verified@yourdomain.com>"
+PORT=10000
+```
+
+`RESEND_FROM_EMAIL` must be a sender Resend accepts. If it is omitted, the backend uses Resend's onboarding sender for development.
+
+## Default Admin Seed
+
+The first server start creates this admin user if it does not exist:
+
+```txt
+username: admin
+password: Marlene2024!
+```
+
+Change the password after first login if this service is used beyond testing.
+
+## API
+
+### Health
+
+```http
+GET /api/health
+```
+
+### Create Booking
+
+```http
+POST /api/bookings
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "Jane Customer",
+  "phone": "620-621-8934",
+  "email": "jane@example.com",
+  "address": "123 Main St",
+  "service_type": "Deep Clean",
+  "preferred_date": "2026-06-01",
+  "preferred_time": "10:00 AM",
+  "notes": "Please call on arrival."
+}
+```
+
+Creates a row in `bookings` and sends a new booking notification to `towerslutz@gmail.com`.
+
+### Admin Login
+
+```http
+POST /api/admin/login
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "admin",
+  "password": "Marlene2024!"
+}
+```
+
+Returns a JWT that expires in 24 hours. Login is rate-limited to 5 attempts per 15 minutes.
+
+### Admin Bookings
+
+Use the login token:
+
+```http
+Authorization: Bearer <token>
+```
+
+```http
+GET /api/admin/bookings
+PATCH /api/admin/bookings/:id/status
+PATCH /api/admin/bookings/:id/retainer
+DELETE /api/admin/bookings/:id
+```
+
+Status values:
+
+```txt
+pending
+confirmed
+completed
+cancelled
+```
+
+## Local Development
+
+```bash
+npm install --legacy-peer-deps
+npm run dev
+```
+
+## Validate
+
+```bash
+npm run check
+npm run build
+```
+
+## Render Deployment
+
+This repo includes `render.yaml` for Blueprint deployment.
+
+1. Push this repo to GitHub.
+2. In Render, create a new Blueprint from the repository.
+3. Render creates:
+   - `marlenes-cleaning-services-api`
+   - `marlenes-cleaning-services-db`
+4. Set `RESEND_API_KEY`.
+5. Set `RESEND_FROM_EMAIL` to a verified Resend sender.
+6. Deploy.
+
+The backend creates tables and seeds the default admin user on first run.
+
+Free Render services are fine for a small functional deployment, but Render's own docs note free services and free Postgres have limits and are not meant for serious production workloads.
+
+---
