@@ -82,24 +82,6 @@ export default function ReviewsSection() {
       setSubmitted(true);
       setForm(INITIAL_FORM);
       toast.success("Review submitted! Pending approval.");
-
-      // Try to open SMS as notification (non-blocking)
-      const smsBody = [
-        "Hi Marlene's Cleaning Services, I would like to leave a review.",
-        `Name: ${form.reviewerName}`,
-        `Rating: ${form.rating}/5`,
-        `Review: ${form.message}`,
-      ].join("\n");
-      
-      // Use setTimeout to avoid interrupting React state updates
-      setTimeout(() => {
-        const smsUrl = `sms:${BUSINESS_PHONE_LINK}?body=${encodeURIComponent(smsBody)}`;
-        // Only redirect on mobile devices that support SMS
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-          window.location.href = smsUrl;
-        }
-      }, 100);
     } catch (error) {
       console.error("Review submission error:", error);
       toast.error("Failed to submit review. Please try again.");
