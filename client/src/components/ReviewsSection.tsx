@@ -71,27 +71,39 @@ export default function ReviewsSection() {
       return;
     }
 
-    // Save to localStorage (goes to pending for admin approval)
-    addReview({
-      reviewerName: form.reviewerName,
-      rating: form.rating,
-      message: form.message,
-    });
+    try {
+      // Save to localStorage (goes to pending for admin approval)
+      addReview({
+        reviewerName: form.reviewerName,
+        rating: form.rating,
+        message: form.message,
+      });
 
-    // Also try SMS as notification
-    const body = [
-      "Hi Marlene's Cleaning Services, I would like to leave a review.",
-      `Name: ${form.reviewerName}`,
-      `Rating: ${form.rating}/5`,
-      `Review: ${form.message}`,
-    ].join("\n");
-    
-    // Try to open SMS
-    window.location.href = `sms:${BUSINESS_PHONE_LINK}?&body=${encodeURIComponent(body)}`;
+      setSubmitted(true);
+      setForm(INITIAL_FORM);
+      toast.success("Review submitted! Pending approval.");
 
-    setSubmitted(true);
-    setForm(INITIAL_FORM);
-    toast.success("Review submitted! Pending approval.");
+      // Try to open SMS as notification (non-blocking)
+      const smsBody = [
+        "Hi Marlene's Cleaning Services, I would like to leave a review.",
+        `Name: ${form.reviewerName}`,
+        `Rating: ${form.rating}/5`,
+        `Review: ${form.message}`,
+      ].join("\n");
+      
+      // Use setTimeout to avoid interrupting React state updates
+      setTimeout(() => {
+        const smsUrl = `sms:${BUSINESS_PHONE_LINK}?body=${encodeURIComponent(smsBody)}`;
+        // Only redirect on mobile devices that support SMS
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.href = smsUrl;
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Review submission error:", error);
+      toast.error("Failed to submit review. Please try again.");
+    }
   };
 
   const inputClass =
@@ -175,7 +187,7 @@ export default function ReviewsSection() {
                 Thank You!
               </h4>
               <p style={{ color: "oklch(0.6 0.03 240)" }} className="text-sm">
-                Your review has been submitted and is pending approval. 
+                Your review has been submitted and is pending approval.
                 If SMS didn't open, call or text us at{" "}
                 <a href={`tel:${BUSINESS_PHONE_LINK}`} style={{ color: "oklch(0.72 0.18 185)" }}>
                   {BUSINESS_PHONE_DISPLAY}
