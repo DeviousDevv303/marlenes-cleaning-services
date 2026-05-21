@@ -127,6 +127,18 @@ export default function SchedulingSection() {
               Schedule a Cleaning
             </h2>
             <div className="section-divider mx-auto" />
+            <p
+              className="text-base max-w-lg mx-auto"
+              style={{ color: "oklch(0.6 0.03 240)" }}
+            >
+              Request a cleaning appointment. We'll confirm within 24 hours.
+            </p>
+            <p
+              className="text-xs font-semibold tracking-wide mt-2"
+              style={{ color: "oklch(0.72 0.18 185)" }}
+            >
+              ⚠️ SERIOUS INQUIRIES ONLY — $50 retainer required to confirm booking
+            </p>
           </div>
 
           {submitted ? (
