@@ -70,7 +70,7 @@ export default function ServicesSection() {
             style={{ color: "oklch(0.6 0.03 240)" }}
           >
             Every service starts at{" "}
-            <span style={{ color: "oklch(0.72 0.18 185)" }}>$150</span>. Final
+            <span style={{ color: "oklch(0.72 0.18 185)" }}>$200</span>. Final
             pricing based on size and scope.
           </p>
         </div>
@@ -117,7 +117,7 @@ export default function ServicesSection() {
                     className="text-sm font-semibold"
                     style={{ color: "oklch(0.72 0.18 185)" }}
                   >
-                    from $150
+                    from $200
                   </span>
                 </div>
               </div>

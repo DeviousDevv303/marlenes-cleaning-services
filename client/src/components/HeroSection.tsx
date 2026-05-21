@@ -102,7 +102,7 @@ export default function HeroSection({ onScheduleClick }: HeroSectionProps) {
           style={{ color: "oklch(0.5 0.03 240)", animationDelay: "0.7s" }}
         >
           Residential &amp; Commercial &nbsp;·&nbsp; Starting at{" "}
-          <span style={{ color: "oklch(0.72 0.18 185)" }}>$150</span>
+          <span style={{ color: "oklch(0.72 0.18 185)" }}>$200</span>
         </p>
       </div>
 
