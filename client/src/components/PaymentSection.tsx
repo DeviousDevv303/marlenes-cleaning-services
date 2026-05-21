@@ -4,7 +4,7 @@ const PAYMENT_PROVIDERS = [
   {
     name: "Cash App",
     envKey: "VITE_CASHAPP_URL",
-    description: "Pay via Cash App",
+    description: "Pay via Cash App ($Marlz720)",
     color: "oklch(0.72 0.22 145)",
     bg: "oklch(0.72 0.22 145 / 0.1)",
     border: "oklch(0.72 0.22 145 / 0.3)",
@@ -109,7 +109,7 @@ export default function PaymentSection() {
                       style={{ color: provider.color }}
                     >
                       <ExternalLink size={12} />
-                      Pay Now
+                      {provider.name === "Cash App" ? "$Marlz720" : "Pay Now"}
                     </span>
                   ) : (
                     <span
@@ -147,7 +147,7 @@ export default function PaymentSection() {
               href="tel:6206218934"
               style={{ color: "oklch(0.72 0.18 185)" }}
             >
-              580-461-5110
+              620-621-8934
             </a>{" "}
             for payment questions.
           </p>
