@@ -87,8 +87,11 @@ export default function PaymentSection() {
               <img
                 src={cashAppQrUrl}
                 alt="Cash App QR code for Marlene Moreno-Resendez, $marlz720"
-                className="w-full max-w-[280px] rounded-2xl"
-                loading="lazy"
+                className="w-full max-w-[340px] rounded-2xl shadow-2xl"
+                width={505}
+                height={736}
+                loading="eager"
+                decoding="async"
               />
             </a>
             <div className="text-center lg:text-left flex flex-col items-center lg:items-start gap-4">
