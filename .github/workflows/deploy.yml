@@ -29,6 +29,8 @@ jobs:
         run: npm install --legacy-peer-deps
       - name: Build
         run: npm run build
+        env:
+          NODE_ENV: production
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
